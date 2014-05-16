@@ -54,7 +54,7 @@ def iglob(pathname):
 # takes a literal basename (so it only has to check for its existence).
 
 
-def glob1(dirname, pattern):
+def glob1(dirname, pattern, base=None):
     try:
         directories, files = default_storage.listdir(dirname)
         names = directories + files
@@ -64,6 +64,12 @@ def glob1(dirname, pattern):
         return []
     if pattern[0] != '.':
         names = [x for x in names if x[0] != '.']
+    if pattern == "**":
+        names = [base + name for name in directories] if base else [""] + directories
+        for subdirectory in directories:
+            founded = glob1("/".join((dirname, subdirectory)), "**",
+                            base=(base or "") + subdirectory + "/")
+            names.extend(founded)
     return fnmatch.filter(names, pattern)
 
 
